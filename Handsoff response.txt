@@ -1,85 +1,46 @@
-## Knowledge Transfer Summary
+Tu knowledge transfer quedó bien y en general puedes continuar con confianza. Solo quiero dejar estas aclaraciones para afinar prioridades y evitar abrir frentes antes de tiempo:
 
-### 1. Product Understanding
-- La app resuelve la coordinación interna de guardias de enfermería: registrar pacientes/casos, enfermeras de confianza, guardias, reportes breves y cobros básicos para reducir dependencia de WhatsApp, notas sueltas y memoria operativa.
-- El usuario principal de la V1 es una administradora/coordinadora de guardias.
-- En esta etapa sí es una herramienta Android interna, local y operativa. No es marketplace abierto, expediente clínico, app para familiares, app para enfermeras, sistema hospitalario, pagos integrados ni plataforma regulatoria.
+1. `nurseName` vs `nurseId` en guardias
+No hay una decisión formal cerrada para migrarlo ya a `nurseId`.
+El uso de `nurseName` fue una simplificación deliberada de esta etapa.
+Por ahora no quiero abrir esa migración dentro de `V1.1 Sprint 1`, salvo que editar guardias choque claramente con ello.
+La prioridad sigue siendo:
+- editar enfermeras
+- tests de NurseFormViewModel
+- editar guardias
+- tests de ShiftFormViewModel
 
-### 2. Current Functional State
-- Módulos existentes: Inicio/Dashboard, Pacientes, Enfermeras, Guardias, Reporte de guardia y Cobros.
-- Implementado hoy:
-  - navegación base con bottom bar y pantallas de detalle/formulario
-  - alta de pacientes, enfermeras y guardias
-  - edición de pacientes
-  - detalle/listado de pacientes, enfermeras y guardias
-  - captura y actualización de reporte asociado a guardia
-  - resumen de cobros calculado desde guardias
-  - catálogos para ubicación, disponibilidad, confianza y tipo de servicio
-  - validaciones con resumen de errores y campos obligatorios marcados
-- Hoy la administradora puede registrar operación básica, consultar detalles, corregir pacientes, abrir reportes desde guardias y revisar totales financieros estimados.
+2. `PaymentRecord`
+Sí quedó como entidad conceptual/documental, no como alcance real implementado.
+En V1.1 los cobros siguen derivados de `Shift`.
+No lo tomes como hueco crítico ni como siguiente paso inmediato.
 
-### 3. Current Engineering State
-- Stack: Kotlin, Jetpack Compose, Material 3, Room, Navigation Compose, ViewModels y Gradle/KSP.
-- Arquitectura: MVVM ligero por features, `core`, `data`, `features`, `ui/theme`; `AppContainer` funciona como service locator simple.
-- Persistencia: Room `CuartelDatabase` versión 2 con entidades para `Patient`, `Nurse`, `Shift` y `ShiftReport`; usa `fallbackToDestructiveMigration()` y seed inicial si las tablas están vacías.
-- Validaciones: están principalmente en los ViewModels de formularios. Pacientes, enfermeras, guardias y reportes tienen reglas reales de obligatorios, catálogos válidos, teléfono, montos, fechas y narrativa mínima.
-- Testing actual: existe `PatientFormViewModelTest`, cubriendo obligatorios, catálogo inválido, alta válida y edición válida sin perder identidad.
-- No pude ejecutar `testDebugUnitTest` en este shell porque no hay `JAVA_HOME` ni `java` en `PATH`. La documentación dice que `testDebugUnitTest` y `assembleDebug` pasaron recientemente.
-- Deudas/warnings conocidos o detectados:
-  - falta edición de enfermeras y guardias
-  - falta cierre formal de guardia
-  - `fallbackToDestructiveMigration()` sigue activo
-  - `menuAnchor()` aparece en puntos que probablemente generan warning de deprecación
-  - `android:allowBackup="true"` con reglas de backup/sample sin ajustar merece revisión por datos personales
-  - algunos textos visibles siguen hardcodeados en Kotlin, aunque están en español
-  - `PaymentRecord` está en la fundación documental, pero no existe como entidad separada; cobros se calculan desde `Shift`
+3. `allowBackup=true`
+No fue una decisión explícita de producto, probablemente quedó por default.
+Sí vale la pena revisarlo más adelante por sensibilidad de datos, pero no bloquea el siguiente bloque técnico.
+No lo priorices antes de editar enfermeras.
 
-### 4. Exact Current Phase
-- Estamos en `V1.1 Sprint 1`: Operación editable y disciplina de testing.
-- Terminado:
-  - V1 operativa base
-  - persistencia local Room
-  - altas principales
-  - captura persistida de reporte
-  - edición de pacientes
-  - primera base de unit tests de pacientes
-- Pendiente inmediato:
-  - edición de enfermeras
-  - tests de `NurseFormViewModel`
-  - edición de guardias
-  - tests de `ShiftFormViewModel`
+4. textos hardcodeados
+Es correcto detectarlo, pero tampoco es prioridad antes de editar enfermeras.
+Regla práctica:
+si tocas una pantalla, mueve a `strings.xml` cualquier texto visible nuevo o cercano que estés modificando.
+No hace falta abrir ahorita una limpieza global.
 
-### 5. Recommended Next Step
-- El siguiente bloque técnico exacto debe ser **editar enfermeras de punta a punta**.
-- Por qué: es el siguiente punto explícito del sprint, replica el patrón ya probado de pacientes y reduce riesgo antes de tocar guardias, que tienen más dependencias con pacientes, enfermeras, reportes y cobros.
-- Pruebas que deben acompañar:
-  - `NurseFormViewModelTest`
-  - obligatorios faltantes
-  - disponibilidad inválida
-  - nivel de confianza inválido
-  - alta válida
-  - modo edición carga registro existente
-  - edición válida conserva `id` y actualiza campos sin duplicar enfermera
-  - caso de enfermera no encontrada si se implementa pantalla/ruta de edición
+5. entorno JDK
+En la máquina original sí pasaron `testDebugUnitTest` y `assembleDebug`.
+La falta de `JAVA_HOME` o `java` en tu shell es un tema de entorno local, no un hueco de conocimiento del proyecto.
 
-### 6. Risks Or Open Questions
-- Dudas críticas:
-  - El entorno local de este shell no puede compilar/probar hasta configurar Java/JDK o `JAVA_HOME`.
-  - La política de backup Android debe revisarse antes de uso real con datos personales.
-  - La edición de guardias necesitará decidir si se mantiene `nurseName` como texto o si se migra hacia relación más fuerte con enfermera.
-- Dudas opcionales:
-  - Confirmar si `versionName = "1.0"` debe quedarse así aunque el roadmap diga V1.1.
-  - Confirmar cuándo conviene sustituir `fallbackToDestructiveMigration()` por migraciones controladas.
-  - Confirmar si `PaymentRecord` seguirá fuera de V1.1 o si cobros debe tener entidad propia más adelante.
-  - Revisar si se centralizarán todos los textos visibles en `strings.xml`.
+6. contexto adicional
+Ya existe repo publicado en GitHub en rama `main`.
+La fuente principal de verdad es:
+- código
+- documentación del repo
+- backlog/sprint actual
+El archivo histórico del chat es solo respaldo secundario.
 
-### 7. Handoff Confidence
-- Confianza alta para continuar sin perder contexto. El repo trae suficiente documentación viva, backlog claro y código consistente con el estado declarado.
-- No necesito el chat anterior para empezar el siguiente bloque; sí conviene resolver el JDK del entorno antes de prometer verificación local completa.
-
-## Gaps To Review With Previous Codex
-- Confirmar si alguna decisión pendiente existe sobre `nurseName` vs `nurseId` en guardias.
-- Confirmar si `PaymentRecord` fue descartado temporalmente o simplemente quedó pendiente.
-- Confirmar si `allowBackup=true` fue intencional para prototipo o quedó por defecto.
-- Confirmar si el siguiente Codex debe corregir textos hardcodeados/centralización antes o después de editar enfermeras.
-- Confirmar qué JDK/Android Studio se usó para los builds que pasaron recientemente.
+Con esto, puedes continuar.
+El siguiente bloque sigue siendo:
+1. editar enfermeras de punta a punta
+2. agregar `NurseFormViewModelTest`
+3. luego editar guardias
+4. luego `ShiftFormViewModelTest`
