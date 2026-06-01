@@ -1,46 +1,10 @@
-Tu knowledge transfer quedó bien y en general puedes continuar con confianza. Solo quiero dejar estas aclaraciones para afinar prioridades y evitar abrir frentes antes de tiempo:
+Recibido. Queda afinado así:
 
-1. `nurseName` vs `nurseId` en guardias
-No hay una decisión formal cerrada para migrarlo ya a `nurseId`.
-El uso de `nurseName` fue una simplificación deliberada de esta etapa.
-Por ahora no quiero abrir esa migración dentro de `V1.1 Sprint 1`, salvo que editar guardias choque claramente con ello.
-La prioridad sigue siendo:
-- editar enfermeras
-- tests de NurseFormViewModel
-- editar guardias
-- tests de ShiftFormViewModel
+- No migrar `nurseName` a `nurseId` dentro de `V1.1 Sprint 1` salvo choque real.
+- `PaymentRecord` queda como concepto futuro; cobros siguen derivados de `Shift`.
+- `allowBackup=true` se registra como deuda sensible, no bloqueante.
+- No hacer limpieza global de textos; solo mover a `strings.xml` lo nuevo o lo cercano a pantallas tocadas.
+- La verificación fallida en mi shell es de entorno JDK, no de estado del proyecto.
+- La prioridad inmediata queda cerrada: **editar enfermeras + `NurseFormViewModelTest`**, después guardias.
 
-2. `PaymentRecord`
-Sí quedó como entidad conceptual/documental, no como alcance real implementado.
-En V1.1 los cobros siguen derivados de `Shift`.
-No lo tomes como hueco crítico ni como siguiente paso inmediato.
-
-3. `allowBackup=true`
-No fue una decisión explícita de producto, probablemente quedó por default.
-Sí vale la pena revisarlo más adelante por sensibilidad de datos, pero no bloquea el siguiente bloque técnico.
-No lo priorices antes de editar enfermeras.
-
-4. textos hardcodeados
-Es correcto detectarlo, pero tampoco es prioridad antes de editar enfermeras.
-Regla práctica:
-si tocas una pantalla, mueve a `strings.xml` cualquier texto visible nuevo o cercano que estés modificando.
-No hace falta abrir ahorita una limpieza global.
-
-5. entorno JDK
-En la máquina original sí pasaron `testDebugUnitTest` y `assembleDebug`.
-La falta de `JAVA_HOME` o `java` en tu shell es un tema de entorno local, no un hueco de conocimiento del proyecto.
-
-6. contexto adicional
-Ya existe repo publicado en GitHub en rama `main`.
-La fuente principal de verdad es:
-- código
-- documentación del repo
-- backlog/sprint actual
-El archivo histórico del chat es solo respaldo secundario.
-
-Con esto, puedes continuar.
-El siguiente bloque sigue siendo:
-1. editar enfermeras de punta a punta
-2. agregar `NurseFormViewModelTest`
-3. luego editar guardias
-4. luego `ShiftFormViewModelTest`
+Cuando me pidas programar, arrancaría exactamente por edición de enfermeras de punta a punta, siguiendo el patrón ya existente de pacientes.
